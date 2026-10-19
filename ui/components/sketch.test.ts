@@ -10,9 +10,9 @@ describe("darkened", () => {
 });
 
 describe("sketchMermaid", () => {
-  it("adds the hand-drawn look in front of the diagram", () => {
+  it("adds the classic look in front of the diagram", () => {
     const out = sketchMermaid("flowchart LR\n  a --> b");
-    expect(out.startsWith("---\nconfig:\n  look: handDrawn")).toBe(true);
+    expect(out.startsWith("---\nconfig:\n  look: classic")).toBe(true);
     expect(out).toContain("---\nflowchart LR\n  a --> b");
   });
 
@@ -25,7 +25,7 @@ describe("sketchMermaid", () => {
 
   it("styles other diagram types without flowchart classes", () => {
     const out = sketchMermaid("sequenceDiagram\n  A->>B: hi {x}");
-    expect(out).toContain("look: handDrawn");
+    expect(out).toContain("look: classic");
     expect(out).not.toContain("classDef");
   });
 

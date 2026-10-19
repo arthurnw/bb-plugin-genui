@@ -1,12 +1,11 @@
-// Turns a model's Mermaid source into an Excalidraw-looking diagram: Mermaid's
-// hand-drawn look (rough strokes, hachure fills) in Excalifont, in Excalidraw's
-// palette. Excalidraw's dark theme is its light canvas through
+// Turns a model's Mermaid source into a diagram in Mermaid's classic look and
+// the system UI font, in Excalidraw's palette. Excalidraw's dark theme is its light canvas through
 // `invert(93%) hue-rotate(180deg)`; the dark palette here is that filter
 // worked out per colour, so the SVG is drawn dark natively and BB's zoom view,
 // which copies the SVG elsewhere, shows it right too. Pure: no DOM.
 
-/** The font family the diagram text uses; Excalifont is loaded by sketchFont.ts. */
-export const SKETCH_FONT_FAMILY = "Excalifont, 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive";
+/** The font family the diagram text uses. */
+export const SKETCH_FONT_FAMILY = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
 
 /** Excalidraw's stroke and fill colours (its default palette, light theme). */
 const LIGHT = {
@@ -41,9 +40,6 @@ const DARK = Object.fromEntries(Object.entries(LIGHT).map(([name, hex]) => [name
 export function sketchPalette(dark: boolean): SketchPalette {
   return dark ? DARK : LIGHT;
 }
-
-/** One seed, so every render of the same diagram draws the same wobble. */
-const SEED = 7;
 
 /** `backdrop` is the colour the diagram is drawn on; edge labels are cut out of the lines with it. */
 function frontmatter(colors: SketchPalette, backdrop: string): string {
@@ -83,8 +79,7 @@ function frontmatter(colors: SketchPalette, backdrop: string): string {
   return [
     "---",
     "config:",
-    "  look: handDrawn",
-    `  handDrawnSeed: ${SEED}`,
+    "  look: classic",
     "  theme: base",
     "  darkMode: false",
     `  fontFamily: "${SKETCH_FONT_FAMILY}"`,
@@ -153,7 +148,7 @@ export function shapeClassLines(source: string, colors: SketchPalette = LIGHT): 
 /**
  * The source BB's Mermaid renderer gets. A diagram that brings its own front
  * matter or init directive keeps it untouched; one with its own class or style
- * lines keeps its colours but still gets the hand-drawn look. The diagram has
+ * lines keeps its colours but still gets the classic look and font. The diagram has
  * no canvas of its own: it is drawn on `backdrop`, Excalidraw's canvas colour
  * if none is given.
  */
