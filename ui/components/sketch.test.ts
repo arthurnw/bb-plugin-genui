@@ -29,12 +29,13 @@ describe("sketchMermaid", () => {
     expect(out).not.toContain("classDef");
   });
 
-  it("draws in the dark palette under a dark theme", () => {
-    const dark = sketchPalette(true);
-    const out = sketchMermaid("flowchart LR\n  ok{Valid?} --> b", true);
-    expect(out).toContain(`background: "${dark.canvas}"`);
-    expect(out).toContain(`classDef sketchDecision fill:${dark.yellow}`);
-    expect(out).not.toContain(sketchPalette(false).yellow);
+  it("uses Mermaid's default colours, dark under a dark theme", () => {
+    const light = sketchMermaid("flowchart LR\n  ok{Valid?} --> b");
+    expect(light).toContain("theme: default");
+    expect(light).not.toContain("classDef");
+    const dark = sketchMermaid("flowchart LR\n  ok{Valid?} --> b", true);
+    expect(dark).toContain("theme: dark");
+    expect(dark).not.toContain(sketchPalette(true).yellow);
   });
 });
 

@@ -1,6 +1,7 @@
-// Turns a model's Mermaid source into a diagram in Mermaid's classic look and
-// the system UI font, in Excalidraw's palette. Excalidraw's dark theme is its light canvas through
-// `invert(93%) hue-rotate(180deg)`; the dark palette here is that filter
+// Turns a model's Mermaid source into a diagram in Mermaid's classic look,
+// default colours and the system UI font. The Excalidraw palette below is still
+// used by diagram.tsx and kept to ease upstream merges. Excalidraw's dark
+// theme is its light canvas through `invert(93%) hue-rotate(180deg)`; the dark palette here is that filter
 // worked out per colour, so the SVG is drawn dark natively and BB's zoom view,
 // which copies the SVG elsewhere, shows it right too. Pure: no DOM.
 
@@ -41,50 +42,17 @@ export function sketchPalette(dark: boolean): SketchPalette {
   return dark ? DARK : LIGHT;
 }
 
-/** `backdrop` is the colour the diagram is drawn on; edge labels are cut out of the lines with it. */
-function frontmatter(colors: SketchPalette, backdrop: string): string {
-  const variables: Record<string, string> = {
-    fontFamily: SKETCH_FONT_FAMILY,
-    fontSize: "17px",
-    background: backdrop,
-    primaryColor: colors.blue,
-    mainBkg: colors.blue,
-    secondaryColor: colors.green,
-    tertiaryColor: colors.yellow,
-    primaryBorderColor: colors.ink,
-    nodeBorder: colors.ink,
-    primaryTextColor: colors.ink,
-    textColor: colors.ink,
-    lineColor: colors.ink,
-    edgeLabelBackground: backdrop,
-    clusterBkg: colors.gray,
-    clusterBorder: colors.ink,
-    titleColor: colors.ink,
-    actorBkg: colors.blue,
-    actorBorder: colors.ink,
-    actorTextColor: colors.ink,
-    actorLineColor: colors.ink,
-    signalColor: colors.ink,
-    signalTextColor: colors.ink,
-    labelBoxBkgColor: colors.yellow,
-    labelBoxBorderColor: colors.ink,
-    labelTextColor: colors.ink,
-    loopTextColor: colors.ink,
-    noteBkgColor: colors.yellow,
-    noteBorderColor: colors.ink,
-    noteTextColor: colors.ink,
-    activationBkgColor: colors.gray,
-    activationBorderColor: colors.ink,
-  };
+/** Mermaid's own theme for BB's light or dark mode, in the system UI font. */
+function frontmatter(dark: boolean): string {
   return [
     "---",
     "config:",
     "  look: classic",
-    "  theme: base",
-    "  darkMode: false",
+    `  theme: ${dark ? "dark" : "default"}`,
     `  fontFamily: "${SKETCH_FONT_FAMILY}"`,
     "  themeVariables:",
-    ...Object.entries(variables).map(([name, value]) => `    ${name}: "${value}"`),
+    `    fontFamily: "${SKETCH_FONT_FAMILY}"`,
+    '    fontSize: "17px"',
     "---",
   ].join("\n");
 }
@@ -147,14 +115,12 @@ export function shapeClassLines(source: string, colors: SketchPalette = LIGHT): 
 
 /**
  * The source BB's Mermaid renderer gets. A diagram that brings its own front
- * matter or init directive keeps it untouched; one with its own class or style
- * lines keeps its colours but still gets the classic look and font. The diagram has
- * no canvas of its own: it is drawn on `backdrop`, Excalidraw's canvas colour
- * if none is given.
+ * matter or init directive keeps it untouched; any other gets Mermaid's default
+ * (or dark) theme in the system UI font. `backdrop` is unused and kept so
+ * callers match upstream.
  */
-export function sketchMermaid(source: string, dark = false, backdrop?: string): string {
+export function sketchMermaid(source: string, dark = false, _backdrop?: string): string {
   const trimmed = source.trim();
   if (hasOwnStyling(trimmed)) return trimmed;
-  const colors = sketchPalette(dark);
-  return [frontmatter(colors, backdrop ?? colors.canvas), trimmed, ...shapeClassLines(trimmed, colors)].join("\n");
+  return [frontmatter(dark), trimmed].join("\n");
 }
